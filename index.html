@@ -1,639 +1,437 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>مرحباً بكم | منصة تعلّم</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مرحباً بكم | منصة تعلّم</title>
 
-    <!-- Cairo Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <style>
-      :root {
-        --bg1: #0b0b0f;
-        --bg2: #14070a;
-        --wine: #722f37;
-        /* نبيتي */
-        --gold: #d4af37;
-        /* ذهبي */
-        --white: #ffffff;
-        --muted: rgba(255, 255, 255, 0.72);
-        --stroke: rgba(255, 255, 255, 0.14);
-        --card: rgba(255, 255, 255, 0.06);
-        --glow: 0 0 35px rgba(212, 175, 55, 0.25);
-      }
+  <style>
+    :root{
+      --bg1:#07070b;
+      --bg2:#120609;
 
-      * {
-        box-sizing: border-box;
-      }
+      --wine:#722F37;
+      --gold:#D4AF37;
+      --white:#ffffff;
 
-      body {
-        margin: 0;
-        font-family:
-          "Cairo",
-          system-ui,
-          -apple-system,
-          Segoe UI,
-          Roboto,
-          Arial;
-        color: var(--white);
-        min-height: 100vh;
-        overflow: hidden;
-        background:
-          radial-gradient(
-            1200px 700px at 20% 10%,
-            rgba(114, 47, 55, 0.35),
-            transparent 60%
-          ),
-          radial-gradient(
-            900px 600px at 80% 70%,
-            rgba(212, 175, 55, 0.18),
-            transparent 60%
-          ),
-          linear-gradient(135deg, var(--bg1), var(--bg2));
-      }
-      /* Canvas خلفية الشبكات */
+      --muted:rgba(255,255,255,.72);
+      --stroke:rgba(255,255,255,.14);
+      --glow: 0 0 35px rgba(212,175,55,.30);
+    }
 
-      #networkCanvas {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-        opacity: 0.55;
-      }
-      /* Vignette */
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Cairo", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--white);
+      min-height:100vh;
+      overflow:hidden;
+      background:
+        radial-gradient(1200px 700px at 18% 12%, rgba(114,47,55,.38), transparent 60%),
+        radial-gradient(900px 600px at 82% 70%, rgba(212,175,55,.22), transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
 
-      .vignette {
-        position: fixed;
-        inset: -2px;
-        pointer-events: none;
-        z-index: 1;
-        background:
-          radial-gradient(
-            900px 500px at 50% 45%,
-            rgba(0, 0, 0, 0.15),
-            rgba(0, 0, 0, 0.75)
-          ),
-          radial-gradient(
-            1200px 700px at 50% 110%,
-            rgba(0, 0, 0, 0.35),
-            rgba(0, 0, 0, 0.9)
-          );
-      }
-
-      .page {
-        position: relative;
-        z-index: 2;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-      }
-
-      .wrap {
-        width: min(980px, 96vw);
-        display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: 22px;
-        align-items: center;
-      }
-
-      @media (max-width: 900px) {
-        body {
-          overflow: auto;
-        }
-        .wrap {
-          grid-template-columns: 1fr;
-          gap: 18px;
-        }
-        #networkCanvas {
-          position: absolute;
-        }
-      }
-
-      .card {
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.08),
-          rgba(255, 255, 255, 0.03)
+    /* Grid متحرك (Fallback) */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      opacity:.25;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,.07) 0px,
+          rgba(255,255,255,.07) 1px,
+          transparent 1px,
+          transparent 40px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          rgba(212,175,55,.08) 0px,
+          rgba(212,175,55,.08) 1px,
+          transparent 1px,
+          transparent 40px
         );
-        border: 1px solid var(--stroke);
-        border-radius: 22px;
-        padding: 26px 22px;
-        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
-        backdrop-filter: blur(8px);
-      }
+      transform: translate3d(0,0,0);
+      animation: gridMove 14s linear infinite;
+    }
 
-      .brandRow {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 14px;
-      }
+    @keyframes gridMove{
+      0%   { background-position: 0 0, 0 0; }
+      100% { background-position: 220px 140px, 140px 220px; }
+    }
 
-      .logo {
-        width: 58px;
-        height: 58px;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-        box-shadow: var(--glow);
-      }
+    /* Canvas شبكة nodes */
+    #networkCanvas{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:1;
+      opacity:.95;                 /* زوّدنا الوضوح */
+      mix-blend-mode: screen;      /* يخلي الذهبي/الأبيض يبانوا على الخلفية */
+      pointer-events:none;
+    }
 
-      .logo img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
+    /* Vignette أخف */
+    .vignette{
+      position:fixed;
+      inset:-2px;
+      pointer-events:none;
+      z-index:2;
+      background:
+        radial-gradient(900px 500px at 50% 45%, rgba(0,0,0,.05), rgba(0,0,0,.55)),
+        radial-gradient(1200px 700px at 50% 110%, rgba(0,0,0,.18), rgba(0,0,0,.75));
+    }
 
-      .title {
-        font-size: 34px;
-        line-height: 1.15;
-        margin: 0;
-        font-weight: 800;
-        letter-spacing: 0.2px;
-      }
+    .page{
+      position:relative;
+      z-index:3;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
 
-      .subtitle {
-        margin: 8px 0 0 0;
-        color: var(--muted);
-        font-size: 15px;
-        line-height: 1.7;
-      }
+    .wrap{
+      width:min(980px, 96vw);
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:22px;
+      align-items:center;
+    }
 
-      .powered {
-        margin-top: 10px;
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.65);
-      }
+    @media (max-width: 900px){
+      body{overflow:auto}
+      .wrap{grid-template-columns:1fr; gap:18px}
+    }
 
-      .powered b {
-        color: var(--gold);
-        font-weight: 800;
-      }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:22px;
+      padding:26px 22px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+    }
 
-      .actions {
-        margin-top: 18px;
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
-      }
+    .brandRow{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin-bottom:14px;
+    }
 
-      .btn {
-        border: none;
-        cursor: pointer;
-        padding: 12px 16px;
-        border-radius: 14px;
-        font-weight: 800;
-        font-size: 14px;
-        font-family: inherit;
-        transition:
-          transform 0.15s ease,
-          box-shadow 0.15s ease,
-          opacity 0.15s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-        user-select: none;
-        white-space: nowrap;
-      }
+    .logo{
+      width:58px;height:58px;
+      border-radius:16px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      box-shadow: var(--glow);
+    }
+    .logo img{width:100%;height:100%;object-fit:cover}
 
-      .btnPrimary {
-        background: linear-gradient(135deg, var(--gold), #f0d27a);
-        color: #1a1212;
-        box-shadow: 0 12px 30px rgba(212, 175, 55, 0.22);
-      }
+    .title{
+      font-size:34px;
+      line-height:1.15;
+      margin:0;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      margin:8px 0 0 0;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.7;
+    }
 
-      .btnPrimary:hover {
-        transform: translateY(-1px);
-      }
+    .powered{
+      margin-top:10px;
+      font-size:13px;
+      color:rgba(255,255,255,.65);
+    }
+    .powered b{color:var(--gold); font-weight:800}
 
-      .btnPrimary:active {
-        transform: translateY(0px);
-        opacity: 0.9;
-      }
+    .actions{
+      margin-top:18px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
 
-      .btnGhost {
-        background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: var(--white);
-      }
-      /* Features map */
+    .btn{
+      border:none;
+      cursor:pointer;
+      padding:12px 16px;
+      border-radius:14px;
+      font-weight:800;
+      font-size:14px;
+      font-family:inherit;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btnPrimary{
+      background:linear-gradient(135deg, var(--gold), #f0d27a);
+      color:#1a1212;
+      box-shadow: 0 12px 30px rgba(212,175,55,.22);
+    }
+    .btnPrimary:hover{transform: translateY(-1px)}
+    .btnPrimary:active{transform: translateY(0px); opacity:.9}
 
-      .featuresCard {
-        padding: 20px 18px;
-      }
+    .btnGhost{
+      background:transparent;
+      border:1px solid rgba(255,255,255,.2);
+      color:var(--white);
+    }
 
-      .featuresTitle {
-        margin: 0 0 10px 0;
-        font-weight: 800;
-      }
+    .featuresCard{padding:20px 18px;}
+    .featuresTitle{margin:0 0 10px 0; font-weight:800;}
+    .featuresHint{margin:0 0 14px 0; color:rgba(255,255,255,.68); font-size:13px; line-height:1.6;}
 
-      .featuresHint {
-        margin: 0 0 14px 0;
-        color: rgba(255, 255, 255, 0.68);
-        font-size: 13px;
-        line-height: 1.6;
-      }
+    .map{
+      position:relative;
+      width:100%;
+      aspect-ratio: 1.1 / 1;
+      border-radius:18px;
+      border:1px dashed rgba(255,255,255,.14);
+      background: radial-gradient(500px 300px at 50% 35%, rgba(114,47,55,.22), rgba(255,255,255,.02));
+      overflow:hidden;
+    }
 
-      .map {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 1.1 / 1;
-        border-radius: 18px;
-        border: 1px dashed rgba(255, 255, 255, 0.14);
-        background: radial-gradient(
-          500px 300px at 50% 35%,
-          rgba(114, 47, 55, 0.22),
-          rgba(255, 255, 255, 0.02)
-        );
-        overflow: hidden;
-      }
+    .map svg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      opacity:0;
+      animation: fadeUp .9s ease forwards;
+      animation-delay: 1.15s;
+    }
 
-      .map svg {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        animation: fadeUp 0.9s ease forwards;
-        animation-delay: 1.15s;
-      }
+    .node{
+      position:absolute;
+      width:78px;
+      height:78px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 12px 34px rgba(0,0,0,.28);
+      backdrop-filter: blur(6px);
+      transform: translateY(10px) scale(.98);
+      opacity:0;
+      animation: fadeUp .85s ease forwards;
+    }
+    .node strong{font-size:15px; letter-spacing:.8px; color:var(--white); font-weight:900;}
+    .node span{font-size:10px; color:rgba(255,255,255,.68); margin-top:2px; display:block; line-height:1.15;}
 
-      .node {
-        position: absolute;
-        width: 78px;
-        height: 78px;
-        border-radius: 999px;
-        display: grid;
-        place-items: center;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
-        backdrop-filter: blur(6px);
-        transform: translateY(10px) scale(0.98);
-        opacity: 0;
-        animation: fadeUp 0.85s ease forwards;
-      }
+    .node.gold{
+      border-color: rgba(212,175,55,.65);
+      box-shadow: 0 0 0 1px rgba(212,175,55,.15), var(--glow);
+    }
 
-      .node strong {
-        font-size: 15px;
-        letter-spacing: 0.8px;
-        color: var(--white);
-        font-weight: 900;
-      }
+    .n1{left:10%; top:18%; animation-delay: .95s;}
+    .n2{left:38%; top:10%; animation-delay: 1.05s;}
+    .n3{right:10%; top:22%; animation-delay: 1.15s;}
+    .n4{left:16%; bottom:18%; animation-delay: 1.25s;}
+    .n5{left:42%; bottom:10%; animation-delay: 1.35s;}
+    .n6{right:14%; bottom:20%; animation-delay: 1.45s;}
 
-      .node span {
-        font-size: 10px;
-        color: rgba(255, 255, 255, 0.68);
-        margin-top: 2px;
-        display: block;
-        line-height: 1.15;
-      }
+    .reveal{opacity:0; transform: translateY(10px); animation: fadeUp .9s ease forwards;}
+    .r1{animation-delay:.35s}
+    .r2{animation-delay:.55s}
+    .r3{animation-delay:.75s}
+    .r4{animation-delay:.95s}
 
-      .node.gold {
-        border-color: rgba(212, 175, 55, 0.6);
-        box-shadow:
-          0 0 0 1px rgba(212, 175, 55, 0.15),
-          var(--glow);
-      }
+    @keyframes fadeUp{ to { opacity:1; transform: translateY(0); } }
 
-      .n1 {
-        left: 10%;
-        top: 18%;
-        animation-delay: 0.95s;
-      }
+    @media (prefers-reduced-motion: reduce){
+      body::before{animation:none;}
+      .reveal, .node, .map svg{animation:none; opacity:1; transform:none;}
+    }
+  </style>
+</head>
 
-      .n2 {
-        left: 38%;
-        top: 10%;
-        animation-delay: 1.05s;
-      }
+<body>
+  <canvas id="networkCanvas"></canvas>
+  <div class="vignette"></div>
 
-      .n3 {
-        right: 10%;
-        top: 22%;
-        animation-delay: 1.15s;
-      }
-
-      .n4 {
-        left: 16%;
-        bottom: 18%;
-        animation-delay: 1.25s;
-      }
-
-      .n5 {
-        left: 42%;
-        bottom: 10%;
-        animation-delay: 1.35s;
-      }
-
-      .n6 {
-        right: 14%;
-        bottom: 20%;
-        animation-delay: 1.45s;
-      }
-      /* Reveal animations */
-
-      .reveal {
-        opacity: 0;
-        transform: translateY(10px);
-        animation: fadeUp 0.9s ease forwards;
-      }
-
-      .r1 {
-        animation-delay: 0.35s;
-      }
-
-      .r2 {
-        animation-delay: 0.55s;
-      }
-
-      .r3 {
-        animation-delay: 0.75s;
-      }
-
-      .r4 {
-        animation-delay: 0.95s;
-      }
-
-      @keyframes fadeUp {
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      /* Reduce motion */
-
-      @media (prefers-reduced-motion: reduce) {
-        .reveal,
-        .node,
-        .map svg {
-          animation: none;
-          opacity: 1;
-          transform: none;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <canvas id="networkCanvas"></canvas>
-    <div class="vignette"></div>
-
-    <main class="page">
-      <section class="wrap">
-        <div class="card">
-          <div class="brandRow reveal r1">
-            <div class="logo" aria-label="Noveyra Logo">
-              <img src="assets/noveyra_logo.png" alt="Noveyra Logo" />
-            </div>
-            <div>
-              <h1 class="title">مرحباً بكم في منصة تعلّم</h1>
-              <p class="powered">Powered by <b>Noveyra</b></p>
-            </div>
+  <main class="page">
+    <section class="wrap">
+      <div class="card">
+        <div class="brandRow reveal r1">
+          <div class="logo" aria-label="Noveyra Logo">
+            <img src="noveyra_logo.png" alt="Noveyra Logo">
           </div>
-
-          <p class="subtitle reveal r2">
-            تجربة تعليمية حديثة تجمع بين المحاضرات، الامتحانات، والملفات —
-            بواجهة عصرية وسهلة.
-          </p>
-
-          <div class="actions reveal r3">
-            <a
-              id="platformBtn"
-              class="btn btnPrimary"
-              href="#"
-              target="_blank"
-              rel="noopener"
-            >
-              الدخول إلى المنصة <span style="font-weight: 900">↗</span>
-            </a>
-            <button
-              class="btn btnGhost"
-              type="button"
-              onclick="toggleBackground()"
-            >
-              إيقاف/تشغيل الخلفية
-            </button>
+          <div>
+            <h1 class="title">مرحباً بكم في منصة تعلّم</h1>
+            <p class="powered">Powered by <b>Noveyra</b></p>
           </div>
-
-          <p class="subtitle reveal r4" style="margin-top: 14px">
-            يمكنك تعديل الميزات والروابط بسهولة من داخل الملف.
-          </p>
         </div>
 
-        <div class="card featuresCard">
-          <h3 class="featuresTitle reveal r2">ميزات المنصة</h3>
-          <p class="featuresHint reveal r3">
-            دوائر مترابطة توضح أهم الخصائص بشكل مختصر.
-          </p>
+        <p class="subtitle reveal r2">
+          تجربة تعليمية حديثة تجمع بين المحاضرات، الامتحانات، والملفات — بواجهة عصرية وسهلة.
+        </p>
 
-          <div class="map">
-            <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#D4AF37" stop-opacity=".55" />
-                  <stop offset="1" stop-color="#ffffff" stop-opacity=".18" />
-                </linearGradient>
-              </defs>
-
-              <line
-                x1="20"
-                y1="26"
-                x2="45"
-                y2="18"
-                stroke="url(#lineGrad)"
-                stroke-width="0.8"
-              />
-              <line
-                x1="45"
-                y1="18"
-                x2="78"
-                y2="28"
-                stroke="url(#lineGrad)"
-                stroke-width="0.8"
-              />
-              <line
-                x1="20"
-                y1="26"
-                x2="25"
-                y2="78"
-                stroke="url(#lineGrad)"
-                stroke-width="0.8"
-              />
-              <line
-                x1="45"
-                y1="18"
-                x2="50"
-                y2="86"
-                stroke="url(#lineGrad)"
-                stroke-width="0.8"
-              />
-              <line
-                x1="78"
-                y1="28"
-                x2="80"
-                y2="76"
-                stroke="url(#lineGrad)"
-                stroke-width="0.8"
-              />
-              <line
-                x1="25"
-                y1="78"
-                x2="50"
-                y2="86"
-                stroke="url(#lineGrad)"
-                stroke-width="0.8"
-              />
-              <line
-                x1="50"
-                y1="86"
-                x2="80"
-                y2="76"
-                stroke="url(#lineGrad)"
-                stroke-width="0.8"
-              />
-            </svg>
-
-            <!-- غيّر الاختصارات والاسم الصغير تحتها -->
-            <div class="node n1 gold">
-              <div><strong>VID</strong><span>محاضرات</span></div>
-            </div>
-            <div class="node n2">
-              <div><strong>EXM</strong><span>اختبارات</span></div>
-            </div>
-            <div class="node n3 gold">
-              <div><strong>PDF</strong><span>ملفات</span></div>
-            </div>
-            <div class="node n4">
-              <div><strong>COD</strong><span>أكواد</span></div>
-            </div>
-            <div class="node n5 gold">
-              <div><strong>PAY</strong><span>دفع</span></div>
-            </div>
-            <div class="node n6">
-              <div><strong>SUP</strong><span>دعم</span></div>
-            </div>
-          </div>
+        <div class="actions reveal r3">
+          <a class="btn btnPrimary" href="https://straight-moselle-ta3almm-0d26e76e.koyeb.app/" target="_blank" rel="noopener">
+            الدخول إلى المنصة <span style="font-weight:900;">↗</span>
+          </a>
+          <button class="btn btnGhost" type="button" onclick="toggleBackground()">
+            إيقاف/تشغيل الخلفية
+          </button>
         </div>
-      </section>
-    </main>
 
-    <script>
-      // ====== عدّل رابط المنصة هنا ======
-      const PLATFORM_URL =
-        "https://straight-moselle-ta3almm-0d26e76e.koyeb.app/";
-      document.getElementById("platformBtn").href = PLATFORM_URL;
+        <p class="subtitle reveal r4" style="margin-top:14px;">
+          (الخلفية: Grid متحرك + شبكة نقاط وخطوط عصرية)
+        </p>
+      </div>
 
-      // ====== Animated Network Background (Canvas) ======
-      const canvas = document.getElementById("networkCanvas");
-      const ctx = canvas.getContext("2d");
+      <div class="card featuresCard">
+        <h3 class="featuresTitle reveal r2">ميزات المنصة</h3>
+        <p class="featuresHint reveal r3">دوائر مترابطة توضح أهم الخصائص بشكل مختصر.</p>
 
-      let W, H, DPR;
-      let running = true;
+        <div class="map">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#D4AF37" stop-opacity=".65"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity=".20"/>
+              </linearGradient>
+            </defs>
+            <line x1="20" y1="26" x2="45" y2="18" stroke="url(#lineGrad)" stroke-width="0.8"/>
+            <line x1="45" y1="18" x2="78" y2="28" stroke="url(#lineGrad)" stroke-width="0.8"/>
+            <line x1="20" y1="26" x2="25" y2="78" stroke="url(#lineGrad)" stroke-width="0.8"/>
+            <line x1="45" y1="18" x2="50" y2="86" stroke="url(#lineGrad)" stroke-width="0.8"/>
+            <line x1="78" y1="28" x2="80" y2="76" stroke="url(#lineGrad)" stroke-width="0.8"/>
+            <line x1="25" y1="78" x2="50" y2="86" stroke="url(#lineGrad)" stroke-width="0.8"/>
+            <line x1="50" y1="86" x2="80" y2="76" stroke="url(#lineGrad)" stroke-width="0.8"/>
+          </svg>
 
-      function resize() {
-        DPR = Math.min(window.devicePixelRatio || 1, 2);
-        W = canvas.width = Math.floor(window.innerWidth * DPR);
-        H = canvas.height = Math.floor(window.innerHeight * DPR);
-        canvas.style.width = window.innerWidth + "px";
-        canvas.style.height = window.innerHeight + "px";
+          <div class="node n1 gold"><div><strong>VID</strong><span>محاضرات</span></div></div>
+          <div class="node n2"><div><strong>EXM</strong><span>اختبارات</span></div></div>
+          <div class="node n3 gold"><div><strong>PDF</strong><span>ملفات</span></div></div>
+          <div class="node n4"><div><strong>COD</strong><span>أكواد</span></div></div>
+          <div class="node n5 gold"><div><strong>PAY</strong><span>دفع</span></div></div>
+          <div class="node n6"><div><strong>SUP</strong><span>دعم</span></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Canvas Animated Network
+    const canvas = document.getElementById('networkCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let W = 0, H = 0, DPR = 1;
+    let running = true;
+
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = canvas.width  = Math.floor(window.innerWidth  * DPR);
+      H = canvas.height = Math.floor(window.innerHeight * DPR);
+      canvas.style.width  = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+    }
+    window.addEventListener('resize', resize);
+
+    const config = {
+      count: 90,
+      speed: 0.55,
+      linkDist: 170,
+      radius: 2.2
+    };
+
+    const nodes = [];
+    const rand = (min, max) => Math.random() * (max - min) + min;
+
+    function init(){
+      nodes.length = 0;
+      for(let i=0;i<config.count;i++){
+        nodes.push({
+          x: rand(0, W),
+          y: rand(0, H),
+          vx: rand(-config.speed, config.speed) * DPR,
+          vy: rand(-config.speed, config.speed) * DPR
+        });
       }
-      window.addEventListener("resize", resize);
-      resize();
+    }
 
-      const config = {
-        count: 70,
-        speed: 0.35,
-        linkDist: 130,
-        radius: 2.0,
-      };
+    function draw(){
+      if(!running) return;
 
-      const nodes = [];
+      ctx.clearRect(0,0,W,H);
 
-      function rand(min, max) {
-        return Math.random() * (max - min) + min;
-      }
+      const maxDist = config.linkDist * DPR;
 
-      function init() {
-        nodes.length = 0;
-        for (let i = 0; i < config.count; i++) {
-          nodes.push({
-            x: rand(0, W),
-            y: rand(0, H),
-            vx: rand(-config.speed, config.speed) * DPR,
-            vy: rand(-config.speed, config.speed) * DPR,
-          });
-        }
-      }
-      init();
+      for(let i=0;i<nodes.length;i++){
+        const a = nodes[i];
 
-      function draw() {
-        if (!running) return;
+        a.x += a.vx;
+        a.y += a.vy;
 
-        ctx.clearRect(0, 0, W, H);
+        if(a.x < 0 || a.x > W) a.vx *= -1;
+        if(a.y < 0 || a.y > H) a.vy *= -1;
 
-        const maxDist = config.linkDist * DPR;
+        for(let j=i+1;j<nodes.length;j++){
+          const b = nodes[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
 
-        for (let i = 0; i < nodes.length; i++) {
-          const a = nodes[i];
-
-          a.x += a.vx;
-          a.y += a.vy;
-
-          if (a.x < 0 || a.x > W) a.vx *= -1;
-          if (a.y < 0 || a.y > H) a.vy *= -1;
-
-          for (let j = i + 1; j < nodes.length; j++) {
-            const b = nodes[j];
-            const dx = a.x - b.x;
-            const dy = a.y - b.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < maxDist) {
-              const alpha = (1 - dist / maxDist) * 0.55;
-              ctx.strokeStyle = `rgba(212,175,55,${alpha})`;
-              ctx.lineWidth = 1 * DPR * 0.45;
-              ctx.beginPath();
-              ctx.moveTo(a.x, a.y);
-              ctx.lineTo(b.x, b.y);
-              ctx.stroke();
-            }
+          if(dist < maxDist){
+            const alpha = (1 - dist/maxDist) * 0.85; // أوضح
+            ctx.strokeStyle = `rgba(212,175,55,${alpha})`;
+            ctx.lineWidth = 0.7 * DPR;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
           }
         }
-
-        for (const n of nodes) {
-          ctx.beginPath();
-          ctx.arc(n.x, n.y, config.radius * DPR, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255,255,255,.6)";
-          ctx.fill();
-        }
-
-        requestAnimationFrame(draw);
       }
+
+      for(const n of nodes){
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, config.radius * DPR, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,.85)';
+        ctx.fill();
+      }
+
       requestAnimationFrame(draw);
+    }
 
-      function toggleBackground() {
-        running = !running;
-        if (running) requestAnimationFrame(draw);
-      }
-      window.toggleBackground = toggleBackground;
-    </script>
-  </body>
+    function start(){
+      resize();
+      init();
+      requestAnimationFrame(draw);
+    }
+
+    function toggleBackground(){
+      running = !running;
+      if(running) requestAnimationFrame(draw);
+    }
+    window.toggleBackground = toggleBackground;
+
+    start();
+  </script>
+</body>
 </html>
